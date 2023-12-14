@@ -1,1 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Charging App</title>
+</head>
+<body>
 
+    <h1>Card Charging App</h1>
+
+    <form id="chargeForm">
+        <label for="cardDetails">Enter Card Details (One per line):</label>
+        <textarea id="cardDetails" name="cardDetails" rows="4" cols="50" required></textarea>
+        <br>
+        <button type="button" onclick="chargeCards()">Charge Cards</button>
+    </form>
+
+    <div id="results"></div>
+
+    <script>
+        function chargeCards() {
+            var cardDetails = document.getElementById("cardDetails").value;
+            
+            fetch('/charge_cards', {
+                method: 'POST',
+                body: cardDetails,
+                headers: {
+                    'Content-Type': 'text/plain'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function displayResults(results) {
+            var resultsDiv = document.getElementById("results");
+            resultsDiv.innerHTML = '<h2>Charging Results:</h2>';
+
+            results.forEach(result => {
+                var resultDiv = document.createElement("div");
+                resultDiv.innerHTML = `
+                    <p><strong>Card Number:</strong> ${result.card_number}</p>
+                    <p><strong>Status:</strong> ${result.status}</p>
+                    <p><strong>Detail:</strong> ${result.detail}</p>
+                    <p><strong>Country:</strong> ${result.country}</p>
+                    <hr>
+                `;
+                resultsDiv.appendChild(resultDiv);
+            });
+        }
+    </script>
+
+</body>
+</html>
