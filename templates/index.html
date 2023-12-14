@@ -1,1 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Charging Form</title>
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
 
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        #results {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Card Charging Form</h1>
+    
+    <form id="cardForm">
+        <div class="form-group">
+            <label for="cardDetails">Enter Card Details (one per line):</label>
+            <textarea class="form-control" id="cardDetails" name="cardDetails" rows="5" required></textarea>
+            <small class="form-text text-muted">Format: card_number|expiry_month|expiry_year|cvc</small>
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="chargeCards()">Charge Cards</button>
+    </form>
+
+    <h2>Results:</h2>
+    <div id="results"></div>
+</div>
+
+<!-- Bootstrap JS and Popper.js CDN -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function chargeCards() {
+        var cardDetails = document.getElementById('cardDetails').value;
+        var formData = new FormData();
+        formData.append('data', cardDetails);
+
+        fetch('/charge_cards', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => displayResults(data))
+        .catch(error => console.error('Error:', error));
+    }
+
+    function displayResults(results) {
+        var resultsDiv = document.getElementById('results');
+        resultsDiv.innerHTML = '';
+
+        results.forEach(result => {
+            var resultDiv = document.createElement('div');
+            resultDiv.className = result.status === 'Charged' ? 'alert alert-success' : 'alert alert-danger';
+            resultDiv.innerHTML = `<strong>Card Number:</strong> ${result.card_number}, <strong>Status:</strong> ${result.status}, <strong>Detail:</strong> ${result.detail}, <strong>Country:</strong> ${result.country || 'N/A'}`;
+            resultsDiv.appendChild(resultDiv);
+        });
+    }
+</script>
+
+</body>
+</html>
