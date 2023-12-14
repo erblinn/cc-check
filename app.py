@@ -7,42 +7,50 @@ from requests.auth import HTTPBasicAuth
 app = Flask(__name__)
 
 # Set your Paylike API keys as environment variables for security reasons
-PAYLIKE_PUBLIC_KEY = os.getenv('2faed97d-65bb-4656-93f1-5381d9c1c513')
-PAYLIKE_SECRET_KEY = os.getenv('ebb66af9-ad32-4398-88e9-6e0d6d369d32')
+PAYLIKE_PUBLIC_KEY = os.getenv('PAYLIKE_PUBLIC_KEY')
+PAYLIKE_SECRET_KEY = os.getenv('PAYLIKE_SECRET_KEY')
 
-# Function to load BIN data from CSV file into a list of dictionaries
+# Function to get proxies from a public API
+def get_proxies(country_code):
+    proxy_api_url = f"https://www.proxy-list.download/api/v1/get?type=http&anon=elite&country={country_code}"
+    response = requests.get(proxy_api_url)
+    if response.status_code == 200:
+        proxies = response.text.strip().split('\r\n')
+        return proxies
+    else:
+        print(f"Failed to get proxies for {country_code}, status code: {response.status_code}")
+        return []
+
+# Load BIN data from CSV file into a list of dictionaries
 def load_bin_data(csv_filename='bins.csv'):
-    bin_data = []
     with open(csv_filename, mode='r', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
-        for row in reader:
-            bin_data.append({
-                'iin_start': row['iin_start'],
-                'iin_end': row['iin_end'],
-                'number_length': row['number_length'],
-                'number_luhn': row['number_luhn'],
-                'scheme': row['scheme'],
-                'brand': row['brand'],
-                'type': row['type'],
-                'prepaid': row['prepaid'],
-                'country': row['country'],
-                'bank_name': row['bank_name'],
-                'bank_logo': row['bank_logo'],
-                'bank_url': row['bank_url'],
-                'bank_phone': row['bank_phone'],
-                'bank_city': row['bank_city'],
-            })
-    return bin_data
+        return list(reader)
+
+# Function to look up the country based on the BIN
+def lookup_country_by_bin(bin_number, bin_data):
+    for bin_info in bin_data:
+        iin_start = bin_info['iin_start']
+        iin_end = bin_info['iin_end']
+        country = bin_info['country']
+
+        if iin_start <= bin_number <= iin_end:
+            return country
+
+    return 'Unknown'
 
 # Function to create a token with Paylike API and charge an amount
 def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc, amount_in_cents, proxies=None):
+    # Load BIN data here
+    bin_data = load_bin_data()
+
     url = "https://api.paylike.io/tokens"
 
     # Extract the BIN (first 6 digits) from the card number
     bin_number = card_number[:6]
 
     # Look up the country based on the BIN
-    country = lookup_country_by_bin(bin_number)
+    country = lookup_country_by_bin(bin_number, bin_data)
 
     payload = {
         'card[number]': card_number,
@@ -79,18 +87,6 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
     except requests.RequestException as e:
         print(f"Request error: {e}")
         return None, None
-
-# Function to look up the country based on the BIN
-def lookup_country_by_bin(bin_number):
-    for bin_info in bin_data:
-        iin_start = bin_info['iin_start']
-        iin_end = bin_info['iin_end']
-        country = bin_info['country']
-
-        if iin_start <= bin_number <= iin_end:
-            return country
-
-    return 'Unknown'
 
 @app.route('/charge_cards', methods=['POST'])
 def charge_cards():
