@@ -7,8 +7,8 @@ from requests.auth import HTTPBasicAuth
 app = Flask(__name__)
 
 # Set your Paylike API keys as environment variables for security reasons
-PAYLIKE_PUBLIC_KEY = os.getenv('PAYLIKE_PUBLIC_KEY')
-PAYLIKE_SECRET_KEY = os.getenv('PAYLIKE_SECRET_KEY')
+PAYLIKE_PUBLIC_KEY = os.getenv('2faed97d-65bb-4656-93f1-5381d9c1c513')
+PAYLIKE_SECRET_KEY = os.getenv('ebb66af9-ad32-4398-88e9-6e0d6d369d32')
 
 # Function to load BIN data from CSV file into a list of dictionaries
 def load_bin_data(csv_filename='bins.csv'):
