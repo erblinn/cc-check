@@ -6,6 +6,10 @@ from requests.auth import HTTPBasicAuth
 
 app = Flask(__name__)
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 # Set your Paylike API keys as environment variables for security reasons
 PAYLIKE_PUBLIC_KEY = os.getenv('PAYLIKE_PUBLIC_KEY')
 PAYLIKE_SECRET_KEY = os.getenv('PAYLIKE_SECRET_KEY')
@@ -87,9 +91,7 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
     except requests.RequestException as e:
         print(f"Request error: {e}")
         return None, None
-@app.route('/')
-def index():
-    return render_template('index.html')
+
 
 @app.route('/charge_cards', methods=['POST'])
 def charge_cards():
