@@ -8,8 +8,8 @@ from requests.auth import HTTPBasicAuth
 app = Flask(__name__)
 
 # Set your Paylike API keys as environment variables for security reasons
-PAYLIKE_PUBLIC_KEY = os.getenv('2faed97d-65bb-4656-93f1-5381d9c1c513')
-PAYLIKE_SECRET_KEY = os.getenv('ebb66af9-ad32-4398-88e9-6e0d6d369d32')
+PAYLIKE_PUBLIC_KEY = os.getenv('6d2b4588-c8e8-4e1d-ad3d-a5e38ce6da5b')
+PAYLIKE_SECRET_KEY = os.getenv('63b5287c-aac1-4213-9870-58b2c7b654f9')
 
 # Function to get proxies from a public API
 def get_proxies(country_code):
