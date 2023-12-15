@@ -11,14 +11,13 @@ app = Flask(__name__)
 PAYLIKE_PUBLIC_KEY = os.getenv('6d2b4588-c8e8-4e1d-ad3d-a5e38ce6da5b')
 PAYLIKE_SECRET_KEY = os.getenv('63b5287c-aac1-4213-9870-58b2c7b654f9')
 
-
 # Function to get proxies from a public API
 def get_proxies(country_code):
     proxy_api_url = f"https://www.proxy-list.download/api/v1/get?type=http&anon=elite&country={country_code}"
     response = requests.get(proxy_api_url)
     if response.status_code == 200:
         proxies = response.text.strip().split('\r\n')
-        return [f'http://{proxy}' for proxy in proxies]  # Prepend http:// to each proxy URL
+        return proxies  # Return proxies without modification
     else:
         print(f"Failed to get proxies for {country_code}, status code: {response.status_code}")
         return []
@@ -66,7 +65,7 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
     }
 
     try:
-        response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxies)
+        response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies={'http': proxies, 'https': proxies})
 
         if response.status_code == 200:
             # Token created successfully
@@ -81,7 +80,7 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
                 'token': token_id,
             }
 
-            charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxies)
+            charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies={'http': proxies, 'https': proxies})
 
             return charge_response, country
         else:
