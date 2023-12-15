@@ -65,9 +65,16 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
     }
 
     try:
-        proxy_dict = {'http': proxies[0], 'https': proxies[0]} if proxies else None
+        proxies_dict = {'http': proxies[0], 'https': proxies[0]} if proxies else None
 
-        response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxy_dict)
+        response = requests.post(
+            url,
+            json=payload,
+            headers=headers,
+            auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''),
+            proxies=proxies_dict,
+            timeout=10,  # Adjust the timeout as needed
+        )
 
         print(f"Request URL: {url}")
         print(f"Request Payload: {payload}")
@@ -87,7 +94,14 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
                 'token': token_id,
             }
 
-            charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxy_dict)
+            charge_response = requests.post(
+                charge_url,
+                json=charge_payload,
+                headers=headers,
+                auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''),
+                proxies=proxies_dict,
+                timeout=10,  # Adjust the timeout as needed
+            )
 
             return charge_response, country
         else:
