@@ -17,7 +17,8 @@ def get_proxies(country_code):
     response = requests.get(proxy_api_url)
     if response.status_code == 200:
         proxies = response.text.strip().split('\r\n')
-        return proxies
+        formatted_proxies = [{'http': proxy, 'https': proxy} for proxy in proxies]
+        return formatted_proxies
     else:
         print(f"Failed to get proxies for {country_code}, status code: {response.status_code}")
         return []
@@ -66,9 +67,14 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
 
     try:
         if proxies:
-            response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies={'http': proxies[0], 'https': proxies[0]})
+            response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxies[0])
         else:
             response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''))
+
+        print(f"Request URL: {url}")
+        print(f"Request Payload: {payload}")
+        print(f"Response Status Code: {response.status_code}")
+        print(f"Response JSON: {response.json() if response else None}")
 
         if response.status_code == 200:
             # Token created successfully
@@ -83,10 +89,7 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
                 'token': token_id,
             }
 
-            if proxies:
-                charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies={'http': proxies[0], 'https': proxies[0]})
-            else:
-                charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''))
+            charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxies[0])
 
             return charge_response, country
         else:
@@ -125,5 +128,3 @@ def charge_cards():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
