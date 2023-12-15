@@ -65,7 +65,10 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
     }
 
     try:
-        response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxies)
+        if proxies:
+            response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies={'http': proxies[0], 'https': proxies[0]})
+        else:
+            response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''))
 
         if response.status_code == 200:
             # Token created successfully
@@ -80,7 +83,10 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
                 'token': token_id,
             }
 
-            charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxies)
+            if proxies:
+                charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies={'http': proxies[0], 'https': proxies[0]})
+            else:
+                charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''))
 
             return charge_response, country
         else:
@@ -119,3 +125,5 @@ def charge_cards():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
