@@ -11,13 +11,14 @@ app = Flask(__name__)
 PAYLIKE_PUBLIC_KEY = os.getenv('6d2b4588-c8e8-4e1d-ad3d-a5e38ce6da5b')
 PAYLIKE_SECRET_KEY = os.getenv('63b5287c-aac1-4213-9870-58b2c7b654f9')
 
+
 # Function to get proxies from a public API
 def get_proxies(country_code):
     proxy_api_url = f"https://www.proxy-list.download/api/v1/get?type=http&anon=elite&country={country_code}"
     response = requests.get(proxy_api_url)
     if response.status_code == 200:
         proxies = response.text.strip().split('\r\n')
-        return proxies
+        return [f'http://{proxy}' for proxy in proxies]  # Prepend http:// to each proxy URL
     else:
         print(f"Failed to get proxies for {country_code}, status code: {response.status_code}")
         return []
@@ -65,21 +66,7 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
     }
 
     try:
-        proxies_dict = {'http': proxies[0], 'https': proxies[0]} if proxies else None
-
-        response = requests.post(
-            url,
-            json=payload,
-            headers=headers,
-            auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''),
-            proxies=proxies_dict,
-            timeout=10,  # Adjust the timeout as needed
-        )
-
-        print(f"Request URL: {url}")
-        print(f"Request Payload: {payload}")
-        print(f"Response Status Code: {response.status_code}")
-        print(f"Response JSON: {response.json() if response else None}")
+        response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxies)
 
         if response.status_code == 200:
             # Token created successfully
@@ -94,14 +81,7 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
                 'token': token_id,
             }
 
-            charge_response = requests.post(
-                charge_url,
-                json=charge_payload,
-                headers=headers,
-                auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''),
-                proxies=proxies_dict,
-                timeout=10,  # Adjust the timeout as needed
-            )
+            charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxies)
 
             return charge_response, country
         else:
