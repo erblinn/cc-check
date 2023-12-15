@@ -17,8 +17,7 @@ def get_proxies(country_code):
     response = requests.get(proxy_api_url)
     if response.status_code == 200:
         proxies = response.text.strip().split('\r\n')
-        formatted_proxies = [{'http': proxy, 'https': proxy} for proxy in proxies]
-        return formatted_proxies
+        return proxies
     else:
         print(f"Failed to get proxies for {country_code}, status code: {response.status_code}")
         return []
@@ -66,10 +65,9 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
     }
 
     try:
-        if proxies:
-            response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxies[0])
-        else:
-            response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''))
+        proxy_dict = {'http': proxies[0], 'https': proxies[0]} if proxies else None
+
+        response = requests.post(url, json=payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxy_dict)
 
         print(f"Request URL: {url}")
         print(f"Request Payload: {payload}")
@@ -89,7 +87,7 @@ def create_paylike_token_and_charge(card_number, expiry_month, expiry_year, cvc,
                 'token': token_id,
             }
 
-            charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxies[0])
+            charge_response = requests.post(charge_url, json=charge_payload, headers=headers, auth=HTTPBasicAuth(PAYLIKE_SECRET_KEY, ''), proxies=proxy_dict)
 
             return charge_response, country
         else:
