@@ -9,7 +9,8 @@ function fillCardNumber() {
         // Dispatch change event
         cardNumberInput.dispatchEvent(new Event('change', { bubbles: true }));
     } else {
-        console.error("Input field with ID 'cardnumber' not found.");
+        // Print error message
+        alert("Input field with ID 'cardnumber' not found!");
     }
 }
 
