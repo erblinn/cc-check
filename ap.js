@@ -2,34 +2,12 @@
 function fillCardNumber() {
     var cardNumberInput = document.getElementById("cardnumber");
     if (cardNumberInput) {
-        // Create and dispatch a keyboard event
-        var event = new KeyboardEvent('keypress', {
-            bubbles: true, 
-            cancelable: true,
-            key: "4",
-            code: "Digit4",
-            charCode: 52
-        });
-        cardNumberInput.dispatchEvent(event);
-        
-        event = new KeyboardEvent('keypress', {
-            bubbles: true, 
-            cancelable: true,
-            key: "1",
-            code: "Digit1",
-            charCode: 49
-        });
-        cardNumberInput.dispatchEvent(event);
-
-        // Repeat the process for the remaining digits
-        // ...
-
-        // Optionally, trigger the input event to simulate input detection
-        var inputEvent = new Event('input', {
-            bubbles: true,
-            cancelable: true,
-        });
-        cardNumberInput.dispatchEvent(inputEvent);
+        // Set the value attribute
+        cardNumberInput.setAttribute('value', '4111111111111111');
+        // Dispatch input event
+        cardNumberInput.dispatchEvent(new Event('input', { bubbles: true }));
+        // Dispatch change event
+        cardNumberInput.dispatchEvent(new Event('change', { bubbles: true }));
     } else {
         console.error("Input field with ID 'cardnumber' not found.");
     }
