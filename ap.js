@@ -16,5 +16,5 @@ function fillCardNumber() {
     }
 }
 
-// Call the function when the page is loaded
+// Call the functio when the page is loaded
 window.onload = fillCardNumber;
