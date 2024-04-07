@@ -39,9 +39,16 @@ function fillCreditCardInfo(ccInfo) {
     }
 }
 
-// Example usage:
-var ccInfo = "4111111111111111|12|2024|123"; // Example credit card information
-var success = fillCreditCardInfo(ccInfo);
-if (!success) {
-    console.error("Failed to fill credit card information.");
+// Function to delay execution by 3 seconds
+function delayExecution() {
+    setTimeout(function() {
+        var ccInfo = "4111111111111111|12|2024|123"; // Example credit card information
+        var success = fillCreditCardInfo(ccInfo);
+        if (!success) {
+            console.error("Failed to fill credit card information.");
+        }
+    }, 3000); // 3 seconds delay
 }
+
+// Call the delayExecution function when the page is loaded
+window.onload = delayExecution;
