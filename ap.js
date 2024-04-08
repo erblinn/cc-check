@@ -17,67 +17,62 @@ function simulateClick(element) {
     element.dispatchEvent(clickEvent);
 }
 
+// Function to fill the credit card information into the input fields
+function fillCreditCardInfo(ccInfo) {
+    var cardNumberInput = document.getElementById("cardnumber");
+    var expiryMonthInput = document.getElementById("date");
+    var cvvInput = document.getElementById("CVV2");
+    var cardHolderNameInput = document.getElementById("carholder-name");
+
+    if (cardNumberInput && expiryMonthInput && cvvInput && cardHolderNameInput) {
+        var ccArray = ccInfo.split('|');
+        if (ccArray.length === 4) {
+            var cardNumber = ccArray[0];
+            var expiryMonth = ccArray[1];
+            var expiryYear = ccArray[2].length === 4 ? ccArray[2].slice(-2) : ccArray[2];
+            var cvv = ccArray[3];
+
+            cardNumberInput.value = cardNumber;
+            expiryMonthInput.value = expiryMonth + '/' + expiryYear;
+            cvvInput.value = cvv;
+
+            // Generate fake card holder name and set it as value
+            var fakeCardHolderName = faker.name.findName(); // Generates a random full name
+            cardHolderNameInput.value = fakeCardHolderName;
+
+            // Dispatch input event for each input field
+            cardNumberInput.dispatchEvent(new Event('input', { bubbles: true }));
+            expiryMonthInput.dispatchEvent(new Event('input', { bubbles: true }));
+            cvvInput.dispatchEvent(new Event('input', { bubbles: true }));
+            cardHolderNameInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+            console.log("Credit card information successfully filled.");
+        } else {
+            console.error("Invalid credit card information format.");
+        }
+    } else {
+        console.error("One or more input fields not found.");
+    }
+}
+
 // Once Faker.js is loaded, you can use it in your code
 fakerScript.onload = function() {
-    // Function to fill the credit card information into the input fields
-    function fillCreditCardInfo(ccInfo) {
-        var cardNumberInput = document.getElementById("cardnumber");
-        var expiryMonthInput = document.getElementById("date");
-        var cvvInput = document.getElementById("CVV2");
-        var cardHolderNameInput = document.getElementById("carholder-name");
-
-        if (cardNumberInput && expiryMonthInput && cvvInput && cardHolderNameInput) {
-            var ccArray = ccInfo.split('|');
-            if (ccArray.length === 4) {
-                var cardNumber = ccArray[0];
-                var expiryMonth = ccArray[1];
-                var expiryYear = ccArray[2].length === 4 ? ccArray[2].slice(-2) : ccArray[2];
-                var cvv = ccArray[3];
-
-                cardNumberInput.value = cardNumber;
-                expiryMonthInput.value = expiryMonth + '/' + expiryYear;
-                cvvInput.value = cvv;
-
-                // Generate fake card holder name and set it as value
-                var fakeCardHolderName = faker.name.findName(); // Generates a random full name
-                cardHolderNameInput.value = fakeCardHolderName;
-
-                // Dispatch input and change events for each input field
-                cardNumberInput.dispatchEvent(new Event('input', { bubbles: true }));
-                expiryMonthInput.dispatchEvent(new Event('input', { bubbles: true }));
-                cvvInput.dispatchEvent(new Event('input', { bubbles: true }));
-                cardHolderNameInput.dispatchEvent(new Event('input', { bubbles: true }));
-
-                console.log("Credit card information successfully filled.");
-            } else {
-                console.error("Invalid credit card information format.");
-            }
-        } else {
-            console.error("One or more input fields not found.");
-        }
-    }
-
     // Call the fillCreditCardInfo function with your credit card information
     var ccInfo = "4111111111111111|12|2024|123"; // Example credit card information
     fillCreditCardInfo(ccInfo);
 
-    // Get the "Vazhdo" button element
-    var vazhdoButton = document.querySelector('.btn-finish');
+    // Get the "Përfundo" button element
+    var perfundoButton = document.querySelector('.btn-finish[href="javascript:onSubmit()"]');
 
-    // Simulate a click on the "Vazhdo" button
-    simulateClick(vazhdoButton);
+    // Simulate a click on the "Përfundo" button
+    simulateClick(perfundoButton);
 
-    // Delay for a short period to ensure the "Vazhdo" button action completes before clicking "Përfundo"
-    setTimeout(function() {
-        // Get the "Përfundo" button element
-        var perfundoButton = document.querySelector('.btn-finish[href="javascript:onSubmit()"]');
-
-        // Check if the "Përfundo" button element exists
-        if (perfundoButton) {
-            // Simulate a click on the "Përfundo" button
-            simulateClick(perfundoButton);
-        } else {
-            console.error("Përfundo button not found.");
+    // Wait for the URL change
+    var previousURL = window.location.href;
+    var checkInterval = setInterval(function() {
+        if (window.location.href !== previousURL) {
+            clearInterval(checkInterval);
+            console.log("Next URL loaded successfully.");
         }
-    }, 1000); // Adjust the delay as needed
+    }, 1000); // Check every 1 second
 };
