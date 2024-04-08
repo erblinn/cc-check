@@ -64,15 +64,17 @@ fakerScript.onload = function() {
     // Get the "Përfundo" button element
     var perfundoButton = document.querySelector('.btn-finish[href="javascript:onSubmit()"]');
 
-    // Simulate a click on the "Përfundo" button
-    simulateClick(perfundoButton);
+    // Simulate a click on the "Përfundo" button with a delay of 5 seconds
+    setTimeout(function() {
+        simulateClick(perfundoButton);
+    }, 5000); // 5 seconds delay
 
-    // Wait for the URL change
+    // Wait for the URL change after clicking the "Përfundo" button
     var previousURL = window.location.href;
     var checkInterval = setInterval(function() {
         if (window.location.href !== previousURL) {
             clearInterval(checkInterval);
             console.log("Next URL loaded successfully.");
         }
-    }, 1000); // Check every 1 second
+    }, 5000); // Check every 5 seconds
 };
